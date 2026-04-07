@@ -901,13 +901,13 @@
     <div class="stake-box reveal">
       <div class="stake-header">
         <span>📋 STAKING TERMINAL</span>
-        <span class="apy-badge">COMING SOON — STAKING CONTRACT IN AUDIT</span>
+        <span class="apy-badge">🟢 LIVE ON ARBITRUM</span>
       </div>
 
       <div class="info-strip">
         <div>
           <div class="il">Est. APY</div>
-          <div class="iv">TBA</div>
+          <div class="iv" id="apyDisplay">—</div>
         </div>
         <div>
           <div class="il">Total Staked</div>
@@ -969,7 +969,7 @@
           </div>
 
           <div class="tx-log" id="txLog">
-            <div class="entry"><span class="ts">--:--</span><span>Staking contract deploying soon. Interface preview ready.</span></div>
+            <div class="entry"><span class="ts">--:--</span><span>Connect wallet to begin staking.</span></div>
           </div>
         </div>
       </div>
@@ -1081,164 +1081,285 @@
 </footer>
 
 <script>
-// ── CONFIG ──────────────────────────────────────────────────────────────────
-const CPA_ADDRESS    = "0x3c439bBcbFD196249cC1597b20970e8E08673ae6";
-const STAKING_ADDRESS = null; // ← set when staking contract is deployed
+// ══════════════════════════════════════════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════════════════════════════════════════
+const CPA_ADDRESS     = "0x3c439bBcbFD196249cC1597b20970e8E08673ae6";
+const STAKING_ADDRESS = "0x513CfeACa3fB4838A585ddA2e4a42eE870a91Afc";
 const ARBITRUM_CHAIN_ID = "0xa4b1"; // 42161
 
-const CPA_ABI = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"inputs":[{"internalType":"address","name":"","type":"address"},{"internalType":"address","name":"","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}];
+const CPA_ABI = [
+  {"inputs":[{"internalType":"address","name":"","type":"address"},{"internalType":"address","name":"","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}
+];
 
-// ── STATE ────────────────────────────────────────────────────────────────────
-let provider, signer, userAddress, cpaContract;
+const STAKING_ABI = [
+  {"inputs":[],"name":"claimRewards","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[],"name":"exit","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"earned","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"stakedBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[],"name":"totalStaked","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[],"name":"rewardRate","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[],"name":"rewardsDuration","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[],"name":"periodFinish","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[],"name":"remainingTime","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[],"name":"rewardPoolBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"stake","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"unstake","outputs":[],"stateMutability":"nonpayable","type":"function"}
+];
+
+// ══════════════════════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════════════════════
+let provider, signer, userAddress, cpaContract, stakingContract;
 let walletBalance = 0n;
+let stakedAmt     = 0n;
+let rewardInterval = null;
 
-// ── COPY ADDRESS ─────────────────────────────────────────────────────────────
+const fmt = n => Number(ethers.formatUnits(n, 18)).toLocaleString(undefined, { maximumFractionDigits: 4 });
+const fmt2 = n => Number(ethers.formatUnits(n, 18)).toLocaleString(undefined, { maximumFractionDigits: 2 });
+
+// ══════════════════════════════════════════════════════════════════════════════
+// COPY & ADD TO WALLET
+// ══════════════════════════════════════════════════════════════════════════════
 function copyAddress() {
-  const addr = "0x3c439bBcbFD196249cC1597b20970e8E08673ae6";
-  navigator.clipboard.writeText(addr).then(() => {
+  navigator.clipboard.writeText(CPA_ADDRESS).then(() => {
     const btn = document.getElementById("copyBtn");
     btn.textContent = "✅ Copied!";
     btn.classList.add("copied");
-    setTimeout(() => {
-      btn.textContent = "📋 Copy Contract Address";
-      btn.classList.remove("copied");
-    }, 2000);
+    setTimeout(() => { btn.textContent = "📋 Copy Contract Address"; btn.classList.remove("copied"); }, 2000);
   });
 }
 
-// ── ADD TO WALLET ─────────────────────────────────────────────────────────────
 async function addToWallet() {
   if (!window.ethereum) { alert("Please install MetaMask first."); return; }
   try {
     await window.ethereum.request({
       method: "wallet_watchAsset",
-      params: {
-        type: "ERC20",
-        options: {
-          address:  "0x3c439bBcbFD196249cC1597b20970e8E08673ae6",
-          symbol:   "CPA",
-          decimals: 18,
-        }
-      }
+      params: { type: "ERC20", options: { address: CPA_ADDRESS, symbol: "CPA", decimals: 18 } }
     });
-  } catch(e) {
-    console.error(e);
-  }
+  } catch(e) { console.error(e); }
 }
 
-// ── WALLET ───────────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════════
+// WALLET CONNECTION
+// ══════════════════════════════════════════════════════════════════════════════
 async function connectWallet() {
   if (!window.ethereum) { alert("No wallet found. Please install MetaMask."); return; }
   try {
     await window.ethereum.request({ method: "eth_requestAccounts" });
-
     const chainId = await window.ethereum.request({ method: "eth_chainId" });
+
     if (chainId !== ARBITRUM_CHAIN_ID) {
       try {
-        await window.ethereum.request({
-          method: "wallet_switchEthereumChain",
-          params: [{ chainId: ARBITRUM_CHAIN_ID }]
-        });
+        await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: ARBITRUM_CHAIN_ID }] });
       } catch {
         await window.ethereum.request({
           method: "wallet_addEthereumChain",
-          params: [{
-            chainId: ARBITRUM_CHAIN_ID,
-            chainName: "Arbitrum One",
+          params: [{ chainId: ARBITRUM_CHAIN_ID, chainName: "Arbitrum One",
             nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
-            rpcUrls: ["https://arb1.arbitrum.io/rpc"],
-            blockExplorerUrls: ["https://arbiscan.io"]
-          }]
+            rpcUrls: ["https://arb1.arbitrum.io/rpc"], blockExplorerUrls: ["https://arbiscan.io"] }]
         });
       }
     }
 
-    provider = new ethers.BrowserProvider(window.ethereum);
-    signer   = await provider.getSigner();
-    userAddress = await signer.getAddress();
-
-    cpaContract = new ethers.Contract(CPA_ADDRESS, CPA_ABI, signer);
+    provider       = new ethers.BrowserProvider(window.ethereum);
+    signer         = await provider.getSigner();
+    userAddress    = await signer.getAddress();
+    cpaContract    = new ethers.Contract(CPA_ADDRESS,     CPA_ABI,     signer);
+    stakingContract = new ethers.Contract(STAKING_ADDRESS, STAKING_ABI, signer);
 
     document.getElementById("connectBtn").textContent = "✓ Connected";
-    document.getElementById("walletInfo").textContent =
-      userAddress.slice(0,6) + "…" + userAddress.slice(-4);
-
+    document.getElementById("walletInfo").textContent = userAddress.slice(0,6) + "…" + userAddress.slice(-4);
     document.getElementById("noWallet").classList.remove("show");
     document.getElementById("stakingUI").classList.add("show");
 
     await refreshBalances();
-  } catch (e) {
+    // Poll rewards every 15s so pending rewards update live
+    if (rewardInterval) clearInterval(rewardInterval);
+    rewardInterval = setInterval(refreshBalances, 15000);
+
+  } catch(e) {
     console.error(e);
     logTx("error", "Connection failed: " + (e.reason || e.message));
   }
 }
 
+// ══════════════════════════════════════════════════════════════════════════════
+// REFRESH BALANCES + GLOBAL STATS
+// ══════════════════════════════════════════════════════════════════════════════
 async function refreshBalances() {
   try {
-    if (!cpaContract || !userAddress) return;
-    const raw = await cpaContract.balanceOf(userAddress);
-    walletBalance = raw;
-    const fmt = n => Number(ethers.formatUnits(n, 18)).toLocaleString(undefined, { maximumFractionDigits: 2 });
-    document.getElementById("walletBal").textContent = fmt(raw);
-    // staking contract not live yet — show dashes
-    document.getElementById("stakedBal").textContent   = "—";
-    document.getElementById("rewardsBal").textContent  = "—";
-    document.getElementById("totalStaked").textContent = "—";
+    const [rawBal, rawStaked, rawEarned, rawTotal] = await Promise.all([
+      cpaContract.balanceOf(userAddress),
+      stakingContract.stakedBalance(userAddress),
+      stakingContract.earned(userAddress),
+      stakingContract.totalStaked()
+    ]);
+
+    walletBalance = rawBal;
+    stakedAmt     = rawStaked;
+
+    document.getElementById("walletBal").textContent  = fmt2(rawBal);
+    document.getElementById("stakedBal").textContent  = fmt2(rawStaked);
+    document.getElementById("rewardsBal").textContent = fmt(rawEarned);
+    document.getElementById("totalStaked").textContent = fmt2(rawTotal) + " CPA";
+
+    // Compute live APY if rate > 0
+    try {
+      const [rate, duration] = await Promise.all([
+        stakingContract.rewardRate(),
+        stakingContract.rewardsDuration()
+      ]);
+      if (rate > 0n && rawTotal > 0n) {
+        const rewardsPerYear = Number(ethers.formatUnits(rate, 18)) * 365 * 24 * 3600;
+        const totalStakedNum = Number(ethers.formatUnits(rawTotal, 18));
+        const apy = (rewardsPerYear / totalStakedNum) * 100;
+        document.getElementById("apyDisplay").textContent = apy.toFixed(1) + "%";
+      } else {
+        document.getElementById("apyDisplay").textContent = "—";
+      }
+    } catch {}
+
   } catch(e) {
-    console.error("Balance error", e);
+    console.error("Balance refresh error", e);
   }
 }
 
+// ══════════════════════════════════════════════════════════════════════════════
+// MAX BUTTON
+// ══════════════════════════════════════════════════════════════════════════════
 function setMax() {
-  const formatted = ethers.formatUnits(walletBalance, 18);
-  document.getElementById("stakeAmount").value = formatted;
+  document.getElementById("stakeAmount").value = ethers.formatUnits(walletBalance, 18);
 }
 
+// ══════════════════════════════════════════════════════════════════════════════
+// TX LOG
+// ══════════════════════════════════════════════════════════════════════════════
 function logTx(type, msg) {
-  const log  = document.getElementById("txLog");
-  const now  = new Date().toLocaleTimeString([], { hour:"2-digit", minute:"2-digit" });
+  const log   = document.getElementById("txLog");
+  const now   = new Date().toLocaleTimeString([], { hour:"2-digit", minute:"2-digit" });
   const entry = document.createElement("div");
   entry.className = "entry";
   entry.innerHTML = `<span class="ts">${now}</span><span class="${type}">${msg}</span>`;
   log.prepend(entry);
 }
 
+function setLoading(btnId, loading, label) {
+  const btn = document.getElementById(btnId);
+  btn.disabled = loading;
+  btn.textContent = loading ? "⏳ Pending…" : label;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// STAKE
+// ══════════════════════════════════════════════════════════════════════════════
 async function stakeTokens() {
-  if (!STAKING_ADDRESS) {
-    logTx("pending", "⏳ Staking contract not yet deployed. Check back soon.");
-    return;
+  if (!signer) { logTx("error", "Connect your wallet first."); return; }
+  const raw = document.getElementById("stakeAmount").value.trim();
+  if (!raw || Number(raw) <= 0) { logTx("error", "Enter an amount to stake."); return; }
+
+  const amount = ethers.parseUnits(raw, 18);
+  if (amount > walletBalance) { logTx("error", "Insufficient CPA balance."); return; }
+
+  try {
+    setLoading("stakeBtn", true, "📥 Stake CPA");
+
+    // Step 1: check existing allowance
+    const allowance = await cpaContract.allowance(userAddress, STAKING_ADDRESS);
+    if (allowance < amount) {
+      logTx("pending", "Step 1/2 — Approving CPA for staking contract…");
+      const approveTx = await cpaContract.approve(STAKING_ADDRESS, ethers.MaxUint256);
+      logTx("pending", "Waiting for approval confirmation…");
+      await approveTx.wait();
+      logTx("success", "✅ Approval confirmed.");
+    }
+
+    // Step 2: stake
+    logTx("pending", `Step 2/2 — Staking ${raw} CPA…`);
+    const stakeTx = await stakingContract.stake(amount);
+    logTx("pending", "Waiting for stake confirmation…");
+    await stakeTx.wait();
+    logTx("success", `✅ Staked ${raw} CPA! Rewards are streaming now.`);
+
+    document.getElementById("stakeAmount").value = "";
+    await refreshBalances();
+
+  } catch(e) {
+    console.error(e);
+    logTx("error", "❌ Stake failed: " + (e.reason || e.shortMessage || e.message));
+  } finally {
+    setLoading("stakeBtn", false, "📥 Stake CPA");
   }
-  logTx("pending", "Approving CPA for staking…");
 }
 
+// ══════════════════════════════════════════════════════════════════════════════
+// UNSTAKE
+// ══════════════════════════════════════════════════════════════════════════════
 async function unstakeTokens() {
-  if (!STAKING_ADDRESS) {
-    logTx("pending", "⏳ Staking contract not yet deployed. Check back soon.");
-    return;
+  if (!signer) { logTx("error", "Connect your wallet first."); return; }
+  const raw = document.getElementById("stakeAmount").value.trim();
+  if (!raw || Number(raw) <= 0) { logTx("error", "Enter an amount to unstake."); return; }
+
+  const amount = ethers.parseUnits(raw, 18);
+  if (amount > stakedAmt) { logTx("error", "Amount exceeds your staked balance."); return; }
+
+  try {
+    setLoading("unstakeBtn", true, "📤 Unstake");
+    logTx("pending", `Unstaking ${raw} CPA…`);
+    const tx = await stakingContract.unstake(amount);
+    logTx("pending", "Waiting for confirmation…");
+    await tx.wait();
+    logTx("success", `✅ Unstaked ${raw} CPA. Pending rewards still claimable.`);
+    document.getElementById("stakeAmount").value = "";
+    await refreshBalances();
+
+  } catch(e) {
+    console.error(e);
+    logTx("error", "❌ Unstake failed: " + (e.reason || e.shortMessage || e.message));
+  } finally {
+    setLoading("unstakeBtn", false, "📤 Unstake");
   }
-  logTx("pending", "Initiating unstake…");
 }
 
+// ══════════════════════════════════════════════════════════════════════════════
+// CLAIM REWARDS
+// ══════════════════════════════════════════════════════════════════════════════
 async function claimRewards() {
-  if (!STAKING_ADDRESS) {
-    logTx("pending", "⏳ No rewards yet — staking contract coming soon.");
-    return;
+  if (!signer) { logTx("error", "Connect your wallet first."); return; }
+  try {
+    setLoading("claimBtn", true, "💰 Claim Rewards");
+    logTx("pending", "Claiming CPA rewards…");
+    const tx = await stakingContract.claimRewards();
+    logTx("pending", "Waiting for confirmation…");
+    await tx.wait();
+    logTx("success", "✅ Rewards claimed! Check your wallet.");
+    await refreshBalances();
+
+  } catch(e) {
+    console.error(e);
+    logTx("error", "❌ Claim failed: " + (e.reason || e.shortMessage || e.message));
+  } finally {
+    setLoading("claimBtn", false, "💰 Claim Rewards");
   }
-  logTx("pending", "Claiming rewards…");
 }
 
-// ── FAQ ───────────────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════════
+// FAQ
+// ══════════════════════════════════════════════════════════════════════════════
 function toggleFaq(el) {
   el.parentElement.classList.toggle("open");
 }
 
-// ── SCROLL REVEAL ─────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════════
+// SCROLL REVEAL
+// ══════════════════════════════════════════════════════════════════════════════
 const observer = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("visible"); } });
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add("visible"); });
 }, { threshold: 0.12 });
 document.querySelectorAll(".reveal").forEach(el => observer.observe(el));
 
-// re-check on account change
 if (window.ethereum) {
   window.ethereum.on("accountsChanged", () => location.reload());
   window.ethereum.on("chainChanged",    () => location.reload());
