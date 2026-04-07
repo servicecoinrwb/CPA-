@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CPA Token — Deduct Your Way to the Moon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Courier+Prime:wght@400;700&family=Bebas+Neue&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.1/ethers.umd.min.js"></script>
+<style>
+  :root {
+    --green:   #1a5c2e;
+    --lime:    #7ec850;
+    --yellow:  #f5d028;
+    --paper:   #f4efe0;
+    --ink:     #1a1a1a;
+    --red:     #c0392b;
+    --stamp:   #a83232;
+    --grid:    rgba(0,0,0,0.06);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: 'Courier Prime', monospace;
+    overflow-x: hidden;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; width: 100%; z-index: 999;
+    background: var(--green);
+    border-bottom: 4px solid var(--yellow);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem;
+    height: 60px;
+  }
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    color: var(--yellow);
+    letter-spacing: 4px;
+  }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a {
+    color: #d4f7d4; text-decoration: none;
+    font-family: 'Courier Prime', monospace;
+    font-size: .85rem; letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: color .2s;
+  }
+  .nav-links a:hover { color: var(--yellow); }
+
+  #connectBtn {
+    background: var(--yellow); color: var(--ink);
+    border: 2px solid var(--ink); border-radius: 0;
+    padding: .4rem 1.2rem;
+    font-family: 'Courier Prime', monospace;
+    font-weight: 700; font-size: .8rem;
+    letter-spacing: 2px; text-transform: uppercase;
+    cursor: pointer;
+    transition: background .2s, transform .1s;
+  }
+  #connectBtn:hover { background: var(--lime); transform: translateY(-1px); }
+  #walletInfo {
+    font-size: .75rem; color: var(--lime);
+    font-family: 'Courier Prime', monospace;
+    text-align: right;
+    line-height: 1.4;
+  }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 7rem 2rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stamp {
+    position: absolute;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(6rem, 18vw, 14rem);
+    color: rgba(168,50,50,.08);
+    letter-spacing: 6px;
+    user-select: none;
+    transform: rotate(-15deg);
+    top: 10%; right: -2%;
+  }
+
+  .form-badge {
+    display: inline-block;
+    background: var(--green);
+    color: var(--yellow);
+    font-family: 'Courier Prime', monospace;
+    font-size: .75rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: .3rem 1.2rem;
+    border: 2px solid var(--yellow);
+    margin-bottom: 1.5rem;
+    animation: fadein .6s ease both;
+  }
+
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3.5rem, 12vw, 9rem);
+    line-height: .9;
+    letter-spacing: 4px;
+    color: var(--green);
+    text-shadow: 4px 4px 0 var(--yellow);
+    animation: fadein .8s .1s ease both;
+    margin-bottom: 1rem;
+  }
+
+  .tagline {
+    font-family: 'Special Elite', cursive;
+    font-size: clamp(1rem, 3vw, 1.6rem);
+    color: var(--ink);
+    opacity: .8;
+    max-width: 560px;
+    line-height: 1.5;
+    animation: fadein .8s .2s ease both;
+    margin-bottom: 2.5rem;
+  }
+
+  .hero-btns {
+    display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+    animation: fadein .8s .35s ease both;
+  }
+
+  .btn-primary {
+    background: var(--green); color: var(--yellow);
+    border: 3px solid var(--green);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem; letter-spacing: 3px;
+    padding: .7rem 2.5rem;
+    cursor: pointer; text-decoration: none;
+    display: inline-block;
+    transition: transform .15s, box-shadow .15s;
+    box-shadow: 4px 4px 0 var(--green);
+  }
+  .btn-primary:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--green); }
+
+  .btn-secondary {
+    background: transparent; color: var(--green);
+    border: 3px solid var(--green);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem; letter-spacing: 3px;
+    padding: .7rem 2.5rem;
+    cursor: pointer; text-decoration: none;
+    display: inline-block;
+    transition: background .15s, color .15s;
+  }
+  .btn-secondary:hover { background: var(--green); color: var(--yellow); }
+
+  .ticker-bar {
+    margin-top: 3.5rem;
+    background: var(--ink);
+    color: var(--lime);
+    font-family: 'Courier Prime', monospace;
+    font-size: .8rem;
+    letter-spacing: 2px;
+    padding: .5rem 0;
+    width: 100vw;
+    overflow: hidden;
+    animation: fadein 1s .5s ease both;
+  }
+  .ticker-track {
+    display: inline-block;
+    white-space: nowrap;
+    animation: ticker 28s linear infinite;
+  }
+  .ticker-track span { margin: 0 3rem; }
+
+  /* ── STATS ── */
+  #stats {
+    background: var(--green);
+    border-top: 4px solid var(--yellow);
+    border-bottom: 4px solid var(--yellow);
+    padding: 3rem 2rem;
+  }
+  .stats-grid {
+    max-width: 900px; margin: 0 auto;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 2rem; text-align: center;
+  }
+  .stat-item { }
+  .stat-label {
+    font-size: .7rem; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--lime);
+    margin-bottom: .3rem;
+  }
+  .stat-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem; color: var(--yellow);
+    letter-spacing: 2px;
+  }
+  .stat-unit { font-size: .9rem; color: #aee89a; margin-top: .2rem; }
+
+  /* ── SECTION WRAPPER ── */
+  section { padding: 5rem 2rem; }
+  .section-label {
+    font-size: .7rem; letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--stamp);
+    margin-bottom: .5rem;
+  }
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.2rem, 6vw, 4rem);
+    color: var(--green);
+    letter-spacing: 3px;
+    line-height: 1;
+    margin-bottom: 1rem;
+  }
+  .section-sub {
+    font-family: 'Special Elite', cursive;
+    font-size: 1rem;
+    color: #444;
+    max-width: 480px;
+    line-height: 1.6;
+  }
+
+  /* ── ABOUT ── */
+  #about .inner {
+    max-width: 1000px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 4rem;
+    align-items: center;
+  }
+  .form-card {
+    background: white;
+    border: 2px solid var(--ink);
+    padding: 2rem;
+    box-shadow: 8px 8px 0 var(--green);
+    position: relative;
+  }
+  .form-card::before {
+    content: 'FORM 1099-CPA';
+    position: absolute; top: -14px; left: 1rem;
+    background: var(--yellow);
+    border: 2px solid var(--ink);
+    font-size: .65rem; letter-spacing: 3px;
+    padding: .15rem .6rem;
+    font-weight: 700;
+  }
+  .form-row {
+    display: flex; justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    padding: .6rem 0;
+    font-size: .85rem;
+  }
+  .form-row:last-child { border-bottom: none; }
+  .form-key { color: #777; font-size: .7rem; letter-spacing: 1px; }
+  .form-val { font-weight: 700; color: var(--green); }
+  .approved-stamp {
+    position: absolute; right: 1.5rem; bottom: 1.5rem;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem; color: var(--stamp);
+    border: 4px solid var(--stamp);
+    padding: .2rem .8rem;
+    transform: rotate(-8deg);
+    opacity: .7;
+    letter-spacing: 3px;
+  }
+
+  /* ── TOKENOMICS ── */
+  #tokenomics { background: white; }
+  #tokenomics .inner { max-width: 900px; margin: 0 auto; }
+  .toka-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2.5rem;
+  }
+  .toka-card {
+    border: 2px solid var(--ink);
+    padding: 1.5rem;
+    background: var(--paper);
+    position: relative;
+    overflow: hidden;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .toka-card:hover { transform: translateY(-4px); box-shadow: 6px 6px 0 var(--green); }
+  .toka-card::after {
+    content: '';
+    position: absolute; top: 0; left: 0;
+    width: 6px; height: 100%;
+    background: var(--green);
+  }
+  .toka-pct {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem; color: var(--green);
+    line-height: 1;
+  }
+  .toka-name { font-weight: 700; font-size: .85rem; letter-spacing: 1px; margin: .4rem 0 .2rem; }
+  .toka-desc { font-size: .75rem; color: #666; line-height: 1.5; }
+
+  /* ── STAKING ── */
+  #staking { background: var(--paper); }
+  #staking .inner { max-width: 800px; margin: 0 auto; }
+
+  .stake-box {
+    background: white;
+    border: 3px solid var(--ink);
+    box-shadow: 8px 8px 0 var(--green);
+    margin-top: 2.5rem;
+    overflow: hidden;
+  }
+  .stake-header {
+    background: var(--green);
+    color: var(--yellow);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem; letter-spacing: 4px;
+    padding: .8rem 1.5rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .apy-badge {
+    background: var(--yellow); color: var(--ink);
+    font-size: .75rem; letter-spacing: 2px;
+    padding: .2rem .8rem;
+    font-family: 'Courier Prime', monospace;
+    font-weight: 700;
+  }
+  .stake-body { padding: 2rem; }
+
+  .wallet-required {
+    text-align: center; padding: 2rem;
+    border: 2px dashed #ccc;
+    margin-bottom: 1.5rem;
+    display: none;
+  }
+  .wallet-required.show { display: block; }
+
+  .staking-ui { display: none; }
+  .staking-ui.show { display: block; }
+
+  .balance-row {
+    display: flex; gap: 1.5rem; margin-bottom: 2rem; flex-wrap: wrap;
+  }
+  .bal-card {
+    flex: 1; min-width: 140px;
+    border: 2px solid var(--green);
+    padding: 1rem 1.2rem;
+    background: #f9fef9;
+  }
+  .bal-label { font-size: .65rem; letter-spacing: 2px; text-transform: uppercase; color: #777; margin-bottom: .3rem; }
+  .bal-value { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; color: var(--green); }
+
+  .input-group { margin-bottom: 1.2rem; }
+  .input-group label {
+    display: block; font-size: .7rem;
+    letter-spacing: 2px; text-transform: uppercase;
+    margin-bottom: .4rem; color: #555;
+  }
+  .token-input {
+    width: 100%; display: flex; border: 2px solid var(--ink);
+  }
+  .token-input input {
+    flex: 1; padding: .7rem 1rem;
+    font-family: 'Courier Prime', monospace;
+    font-size: 1rem; border: none; outline: none;
+    background: transparent;
+  }
+  .token-input .max-btn {
+    background: var(--green); color: var(--yellow);
+    border: none; padding: 0 1rem;
+    font-family: 'Courier Prime', monospace;
+    font-weight: 700; font-size: .75rem;
+    letter-spacing: 2px; cursor: pointer;
+  }
+  .token-input .max-btn:hover { background: #0f4020; }
+
+  .stake-btns { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem; }
+  .action-btn {
+    flex: 1;
+    padding: .8rem 1rem;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem; letter-spacing: 3px;
+    cursor: pointer; border: 3px solid var(--ink);
+    transition: transform .15s, box-shadow .15s;
+  }
+  .action-btn:hover { transform: translateY(-2px); box-shadow: 4px 4px 0 var(--ink); }
+  .action-btn.stake { background: var(--green); color: var(--yellow); }
+  .action-btn.unstake { background: var(--yellow); color: var(--ink); }
+  .action-btn.claim { background: var(--paper); color: var(--green); }
+  .action-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .tx-log {
+    margin-top: 1.5rem;
+    border-top: 2px dashed #ccc;
+    padding-top: 1.2rem;
+    font-size: .75rem;
+    color: #666;
+    min-height: 2rem;
+  }
+  .tx-log .entry {
+    display: flex; gap: .5rem; align-items: baseline;
+    margin-bottom: .3rem;
+  }
+  .tx-log .ts { color: #aaa; font-size: .65rem; }
+  .tx-log .success { color: var(--green); font-weight: 700; }
+  .tx-log .error { color: var(--red); font-weight: 700; }
+  .tx-log .pending { color: #e67e22; font-weight: 700; }
+
+  .info-strip {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    border-top: 2px solid var(--ink);
+    text-align: center;
+  }
+  .info-strip div {
+    padding: 1rem;
+    border-right: 2px solid var(--ink);
+  }
+  .info-strip div:last-child { border-right: none; }
+  .info-strip .il { font-size: .6rem; letter-spacing: 2px; text-transform: uppercase; color: #999; margin-bottom: .2rem; }
+  .info-strip .iv { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; color: var(--green); }
+
+  /* ── HOW TO BUY ── */
+  #howtobuy { background: var(--green); color: white; }
+  #howtobuy .inner { max-width: 800px; margin: 0 auto; }
+  #howtobuy .section-title { color: var(--yellow); }
+  #howtobuy .section-label { color: var(--lime); }
+  .steps { display: flex; flex-direction: column; gap: 0; margin-top: 2rem; }
+  .step {
+    display: flex; gap: 1.5rem;
+    border-left: 4px solid var(--yellow);
+    padding: 1.5rem 1.5rem 1.5rem 2rem;
+    position: relative;
+    background: rgba(255,255,255,.03);
+    border-bottom: 1px solid rgba(255,255,255,.08);
+    transition: background .2s;
+  }
+  .step:hover { background: rgba(255,255,255,.08); }
+  .step-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem; color: var(--yellow);
+    line-height: 1; flex-shrink: 0; width: 40px;
+  }
+  .step-content h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem; letter-spacing: 2px;
+    color: var(--lime); margin-bottom: .3rem;
+  }
+  .step-content p { font-size: .85rem; color: #b8e6b8; line-height: 1.6; }
+  .step-content code {
+    background: rgba(255,255,255,.1);
+    padding: .1rem .4rem;
+    font-family: 'Courier Prime', monospace;
+    font-size: .8rem; word-break: break-all;
+  }
+
+  /* ── FAQ ── */
+  #faq { background: white; }
+  #faq .inner { max-width: 720px; margin: 0 auto; }
+  .faq-item {
+    border-bottom: 2px solid var(--ink);
+    padding: 1.2rem 0;
+  }
+  .faq-q {
+    font-family: 'Special Elite', cursive;
+    font-size: 1rem; cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 1rem;
+  }
+  .faq-q:hover { color: var(--green); }
+  .faq-icon { font-size: 1.4rem; flex-shrink: 0; transition: transform .3s; }
+  .faq-a {
+    font-size: .85rem;
+    color: #555;
+    line-height: 1.7;
+    max-height: 0; overflow: hidden;
+    transition: max-height .4s ease, padding .3s;
+  }
+  .faq-item.open .faq-a { max-height: 200px; padding-top: .8rem; }
+  .faq-item.open .faq-icon { transform: rotate(45deg); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--ink);
+    color: #777;
+    text-align: center;
+    padding: 2rem;
+    font-size: .75rem;
+    letter-spacing: 1px;
+    line-height: 2;
+  }
+  footer strong { color: var(--lime); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadein {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* scroll reveal */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 700px) {
+    #about .inner { grid-template-columns: 1fr; gap: 2rem; }
+    .nav-links { display: none; }
+    .info-strip { grid-template-columns: 1fr; }
+    .info-strip div { border-right: none; border-bottom: 2px solid var(--ink); }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">$CPA</div>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#tokenomics">Tokenomics</a></li>
+    <li><a href="#staking">Stake</a></li>
+    <li><a href="#howtobuy">Buy</a></li>
+  </ul>
+  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.2rem">
+    <button id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
+    <div id="walletInfo"></div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="stamp">AUDIT</div>
+  <div class="form-badge">📋 Tax Season Special Edition</div>
+  <h1>CPA TOKEN</h1>
+  <p class="tagline">The only crypto deduction the IRS can't touch. File for financial freedom — gains not guaranteed, vibes absolutely are.</p>
+  <div class="hero-btns">
+    <a class="btn-primary" href="#staking">Stake Your Return</a>
+    <a class="btn-secondary" href="#howtobuy">Buy $CPA</a>
+  </div>
+  <div class="ticker-bar">
+    <div class="ticker-track">
+      <span>$CPA — 1,000,000 TOTAL SUPPLY</span>
+      <span>⚡ BUILT ON ARBITRUM</span>
+      <span>📋 ZERO TAX ON TRANSFERS</span>
+      <span>🔒 FIXED SUPPLY — NO MINT</span>
+      <span>✅ DEDUCT RESPONSIBLY</span>
+      <span>🧾 FORM 1099-MOON INCOMING</span>
+      <span>$CPA — 1,000,000 TOTAL SUPPLY</span>
+      <span>⚡ BUILT ON ARBITRUM</span>
+      <span>📋 ZERO TAX ON TRANSFERS</span>
+      <span>🔒 FIXED SUPPLY — NO MINT</span>
+      <span>✅ DEDUCT RESPONSIBLY</span>
+      <span>🧾 FORM 1099-MOON INCOMING</span>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div id="stats">
+  <div class="stats-grid">
+    <div class="stat-item reveal">
+      <div class="stat-label">Total Supply</div>
+      <div class="stat-value">1M</div>
+      <div class="stat-unit">$CPA Tokens</div>
+    </div>
+    <div class="stat-item reveal">
+      <div class="stat-label">Transfer Tax</div>
+      <div class="stat-value">0%</div>
+      <div class="stat-unit">Unlike Your W-2</div>
+    </div>
+    <div class="stat-item reveal">
+      <div class="stat-label">Network</div>
+      <div class="stat-value">ARB</div>
+      <div class="stat-unit">Arbitrum One</div>
+    </div>
+    <div class="stat-item reveal">
+      <div class="stat-label">Decimals</div>
+      <div class="stat-value">18</div>
+      <div class="stat-unit">Standard ERC-20</div>
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="inner">
+    <div class="reveal">
+      <div class="section-label">// What Is This</div>
+      <h2 class="section-title">YOUR BIGGEST<br>WRITE-OFF YET</h2>
+      <p class="section-sub">CPA Token launched at the end of tax season — because after you've given Uncle Sam his cut, you deserve something that's actually yours. Fixed supply, zero admin keys, zero mint function. Fully decentralized. Consider it a schedule-loss carry-forward into the next bull run.</p>
+      <br />
+      <p class="section-sub" style="color:var(--red); font-size:.8rem;">⚠ Not financial advice. Not tax advice. Not CPA advice. Consult a real accountant.</p>
+    </div>
+    <div class="reveal">
+      <div class="form-card">
+        <div class="form-row">
+          <span class="form-key">Token Name</span>
+          <span class="form-val">CPA</span>
+        </div>
+        <div class="form-row">
+          <span class="form-key">Symbol</span>
+          <span class="form-val">$CPA</span>
+        </div>
+        <div class="form-row">
+          <span class="form-key">Network</span>
+          <span class="form-val">Arbitrum One</span>
+        </div>
+        <div class="form-row">
+          <span class="form-key">Total Supply</span>
+          <span class="form-val">1,000,000</span>
+        </div>
+        <div class="form-row">
+          <span class="form-key">Decimals</span>
+          <span class="form-val">18</span>
+        </div>
+        <div class="form-row">
+          <span class="form-key">Mintable</span>
+          <span class="form-val" style="color:var(--red)">NO</span>
+        </div>
+        <div class="form-row">
+          <span class="form-key">Owner / Admin</span>
+          <span class="form-val" style="color:var(--red)">NONE</span>
+        </div>
+        <div class="form-row">
+          <span class="form-key">Transfer Fee</span>
+          <span class="form-val">0%</span>
+        </div>
+        <div class="approved-stamp">APPROVED</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TOKENOMICS -->
+<section id="tokenomics">
+  <div class="inner">
+    <div class="reveal">
+      <div class="section-label">// Allocation</div>
+      <h2 class="section-title">TOKENOMICS</h2>
+      <p class="section-sub">Simple like a 1040-EZ. No team allocation hiding in a multisig, no VC unlock schedule.</p>
+    </div>
+    <div class="toka-grid">
+      <div class="toka-card reveal">
+        <div class="toka-pct">100%</div>
+        <div class="toka-name">Public Circulation</div>
+        <div class="toka-desc">All 1,000,000 tokens minted to the deployer wallet at launch. No reserved allocations, no vesting schedules.</div>
+      </div>
+      <div class="toka-card reveal">
+        <div class="toka-pct">0%</div>
+        <div class="toka-name">Team / Dev Cut</div>
+        <div class="toka-desc">We didn't pay ourselves first. If we wanted to rug, we'd have become real accountants.</div>
+      </div>
+      <div class="toka-card reveal">
+        <div class="toka-pct">0%</div>
+        <div class="toka-name">Future Minting</div>
+        <div class="toka-desc">No mint function in the contract. Supply is fixed forever. The IRS can't inflate this one.</div>
+      </div>
+      <div class="toka-card reveal">
+        <div class="toka-pct">∞</div>
+        <div class="toka-name">Vibes Allocated</div>
+        <div class="toka-desc">Tax season is brutal. CPA is fun. That's the whole pitch. No whitepaper needed.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STAKING -->
+<section id="staking">
+  <div class="inner">
+    <div class="reveal">
+      <div class="section-label">// Earn While You Wait for Your Refund</div>
+      <h2 class="section-title">STAKE $CPA</h2>
+      <p class="section-sub">Lock your CPA tokens and earn rewards. Think of it as putting your refund in a high-yield savings account — except cooler and on-chain.</p>
+    </div>
+
+    <div class="stake-box reveal">
+      <div class="stake-header">
+        <span>📋 STAKING TERMINAL</span>
+        <span class="apy-badge">COMING SOON — STAKING CONTRACT IN AUDIT</span>
+      </div>
+
+      <div class="info-strip">
+        <div>
+          <div class="il">Est. APY</div>
+          <div class="iv">TBA</div>
+        </div>
+        <div>
+          <div class="il">Total Staked</div>
+          <div class="iv" id="totalStaked">—</div>
+        </div>
+        <div>
+          <div class="il">Lock Period</div>
+          <div class="iv">NONE</div>
+        </div>
+      </div>
+
+      <div class="stake-body">
+        <!-- Not connected -->
+        <div class="wallet-required show" id="noWallet">
+          <p style="font-family:'Special Elite',cursive;font-size:1rem;color:#888;margin-bottom:1rem">
+            🔌 Connect your wallet to view your CPA balance and stake tokens.
+          </p>
+          <button class="btn-primary" onclick="connectWallet()">Connect Wallet</button>
+        </div>
+
+        <!-- Connected staking UI -->
+        <div class="staking-ui" id="stakingUI">
+          <div class="balance-row">
+            <div class="bal-card">
+              <div class="bal-label">Wallet Balance</div>
+              <div class="bal-value" id="walletBal">0</div>
+              <div style="font-size:.7rem;color:#888">$CPA</div>
+            </div>
+            <div class="bal-card">
+              <div class="bal-label">Currently Staked</div>
+              <div class="bal-value" id="stakedBal">0</div>
+              <div style="font-size:.7rem;color:#888">$CPA</div>
+            </div>
+            <div class="bal-card">
+              <div class="bal-label">Pending Rewards</div>
+              <div class="bal-value" id="rewardsBal">0</div>
+              <div style="font-size:.7rem;color:#888">$CPA</div>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Amount to Stake / Unstake</label>
+            <div class="token-input">
+              <input type="number" id="stakeAmount" placeholder="0.00" min="0" step="any" />
+              <button class="max-btn" onclick="setMax()">MAX</button>
+            </div>
+          </div>
+
+          <div class="stake-btns">
+            <button class="action-btn stake" onclick="stakeTokens()" id="stakeBtn">
+              📥 Stake CPA
+            </button>
+            <button class="action-btn unstake" onclick="unstakeTokens()" id="unstakeBtn">
+              📤 Unstake
+            </button>
+            <button class="action-btn claim" onclick="claimRewards()" id="claimBtn">
+              💰 Claim Rewards
+            </button>
+          </div>
+
+          <div class="tx-log" id="txLog">
+            <div class="entry"><span class="ts">--:--</span><span>Staking contract deploying soon. Interface preview ready.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW TO BUY -->
+<section id="howtobuy">
+  <div class="inner">
+    <div class="reveal">
+      <div class="section-label">// Step-by-Step</div>
+      <h2 class="section-title">HOW TO BUY</h2>
+      <p class="section-sub" style="color:#b8e6b8">Simpler than filing an extension. Takes 3 minutes, not 3 months.</p>
+    </div>
+    <div class="steps reveal">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-content">
+          <h3>Get a Wallet</h3>
+          <p>Download MetaMask or Rabby Wallet. Create a new wallet and back up your seed phrase — unlike your W-2, don't lose this one.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-content">
+          <h3>Add Arbitrum One</h3>
+          <p>In MetaMask, add Arbitrum One network (Chain ID: 42161, RPC: <code>https://arb1.arbitrum.io/rpc</code>). Bridge ETH from mainnet or buy directly on Arbitrum.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-content">
+          <h3>Buy ETH for Gas</h3>
+          <p>You need a tiny bit of ETH on Arbitrum to pay gas fees. $2–5 worth is plenty — Arbitrum fees are near zero.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-content">
+          <h3>Swap on Uniswap</h3>
+          <p>Go to <code>app.uniswap.org</code>, select Arbitrum, paste the CPA contract address, and swap ETH → $CPA. Set slippage to 1%.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">05</div>
+        <div class="step-content">
+          <h3>Add Token to Wallet</h3>
+          <p>Paste the contract address in MetaMask's "Import Token" to see your $CPA balance. Congratulations — you've filed for the moon.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="inner">
+    <div class="reveal">
+      <div class="section-label">// Frequently Audited Questions</div>
+      <h2 class="section-title">FAQ</h2>
+    </div>
+    <div style="margin-top:2rem">
+      <div class="faq-item reveal">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>Is CPA a real accounting firm?</span>
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">No. CPA Token is a meme token launched after tax season for fun. We are not accountants, financial advisors, or licensed professionals of any kind. For actual tax help, please hire an actual CPA.</div>
+      </div>
+      <div class="faq-item reveal">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>Can the team mint more tokens?</span>
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">Absolutely not. There is no mint function in the contract. The supply of 1,000,000 CPA is fixed forever. You can verify this yourself on Arbiscan — transparency is our only audit.</div>
+      </div>
+      <div class="faq-item reveal">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>Are CPA token gains tax deductible?</span>
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">Gains are taxable as capital gains. Losses might be deductible. We are not your CPA and this is not tax advice. But hey, if you need a loss, crypto is historically great for that.</div>
+      </div>
+      <div class="faq-item reveal">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>When is the staking contract launching?</span>
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">The staking contract is in development and undergoing testing. The UI is live so you can preview it now. Announcement will be posted when the contract is deployed and verified on Arbiscan.</div>
+      </div>
+      <div class="faq-item reveal">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>Why Arbitrum?</span>
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">Arbitrum fees are so low they make your accountant jealous. Fast finality, EVM compatible, and a thriving DeFi ecosystem. The natural home for a token that appreciates cheap transactions.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--lime);letter-spacing:6px;margin-bottom:.5rem">$CPA</div>
+  <strong>CPA Token</strong> — Arbitrum One &nbsp;|&nbsp; 1,000,000 Fixed Supply<br />
+  Not financial advice. Not tax advice. Just vibes and Solidity.<br />
+  <span style="font-size:.65rem;opacity:.5">© 2025 CPA Token. All losses your own.</span>
+</footer>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────────
+const CPA_ADDRESS    = "0xYOUR_CPA_CONTRACT_ADDRESS"; // ← paste your deployed address
+const STAKING_ADDRESS = null; // ← set when staking contract is deployed
+const ARBITRUM_CHAIN_ID = "0xa4b1"; // 42161
+
+const CPA_ABI = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"inputs":[{"internalType":"address","name":"","type":"address"},{"internalType":"address","name":"","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}];
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+let provider, signer, userAddress, cpaContract;
+let walletBalance = 0n;
+
+// ── WALLET ───────────────────────────────────────────────────────────────────
+async function connectWallet() {
+  if (!window.ethereum) { alert("No wallet found. Please install MetaMask."); return; }
+  try {
+    await window.ethereum.request({ method: "eth_requestAccounts" });
+
+    const chainId = await window.ethereum.request({ method: "eth_chainId" });
+    if (chainId !== ARBITRUM_CHAIN_ID) {
+      try {
+        await window.ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: ARBITRUM_CHAIN_ID }]
+        });
+      } catch {
+        await window.ethereum.request({
+          method: "wallet_addEthereumChain",
+          params: [{
+            chainId: ARBITRUM_CHAIN_ID,
+            chainName: "Arbitrum One",
+            nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
+            rpcUrls: ["https://arb1.arbitrum.io/rpc"],
+            blockExplorerUrls: ["https://arbiscan.io"]
+          }]
+        });
+      }
+    }
+
+    provider = new ethers.BrowserProvider(window.ethereum);
+    signer   = await provider.getSigner();
+    userAddress = await signer.getAddress();
+
+    cpaContract = new ethers.Contract(CPA_ADDRESS, CPA_ABI, signer);
+
+    document.getElementById("connectBtn").textContent = "✓ Connected";
+    document.getElementById("walletInfo").textContent =
+      userAddress.slice(0,6) + "…" + userAddress.slice(-4);
+
+    document.getElementById("noWallet").classList.remove("show");
+    document.getElementById("stakingUI").classList.add("show");
+
+    await refreshBalances();
+  } catch (e) {
+    console.error(e);
+    logTx("error", "Connection failed: " + (e.reason || e.message));
+  }
+}
+
+async function refreshBalances() {
+  try {
+    if (!cpaContract || !userAddress) return;
+    const raw = await cpaContract.balanceOf(userAddress);
+    walletBalance = raw;
+    const fmt = n => Number(ethers.formatUnits(n, 18)).toLocaleString(undefined, { maximumFractionDigits: 2 });
+    document.getElementById("walletBal").textContent = fmt(raw);
+    // staking contract not live yet — show dashes
+    document.getElementById("stakedBal").textContent   = "—";
+    document.getElementById("rewardsBal").textContent  = "—";
+    document.getElementById("totalStaked").textContent = "—";
+  } catch(e) {
+    console.error("Balance error", e);
+  }
+}
+
+function setMax() {
+  const formatted = ethers.formatUnits(walletBalance, 18);
+  document.getElementById("stakeAmount").value = formatted;
+}
+
+function logTx(type, msg) {
+  const log  = document.getElementById("txLog");
+  const now  = new Date().toLocaleTimeString([], { hour:"2-digit", minute:"2-digit" });
+  const entry = document.createElement("div");
+  entry.className = "entry";
+  entry.innerHTML = `<span class="ts">${now}</span><span class="${type}">${msg}</span>`;
+  log.prepend(entry);
+}
+
+async function stakeTokens() {
+  if (!STAKING_ADDRESS) {
+    logTx("pending", "⏳ Staking contract not yet deployed. Check back soon.");
+    return;
+  }
+  logTx("pending", "Approving CPA for staking…");
+}
+
+async function unstakeTokens() {
+  if (!STAKING_ADDRESS) {
+    logTx("pending", "⏳ Staking contract not yet deployed. Check back soon.");
+    return;
+  }
+  logTx("pending", "Initiating unstake…");
+}
+
+async function claimRewards() {
+  if (!STAKING_ADDRESS) {
+    logTx("pending", "⏳ No rewards yet — staking contract coming soon.");
+    return;
+  }
+  logTx("pending", "Claiming rewards…");
+}
+
+// ── FAQ ───────────────────────────────────────────────────────────────────────
+function toggleFaq(el) {
+  el.parentElement.classList.toggle("open");
+}
+
+// ── SCROLL REVEAL ─────────────────────────────────────────────────────────────
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("visible"); } });
+}, { threshold: 0.12 });
+document.querySelectorAll(".reveal").forEach(el => observer.observe(el));
+
+// re-check on account change
+if (window.ethereum) {
+  window.ethereum.on("accountsChanged", () => location.reload());
+  window.ethereum.on("chainChanged",    () => location.reload());
+}
+</script>
+</body>
+</html>
