@@ -513,12 +513,141 @@
   .reveal { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
   .reveal.visible { opacity: 1; transform: none; }
 
+  /* ── BUY SECTION ── */
+  #buy { background: var(--paper); }
+  #buy .inner { max-width: 960px; margin: 0 auto; }
+
+  .buy-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+    margin-top: 2.5rem;
+    align-items: start;
+  }
+
+  .contract-box {
+    border: 3px solid var(--ink);
+    background: white;
+    box-shadow: 6px 6px 0 var(--green);
+  }
+  .contract-box-header {
+    background: var(--ink);
+    color: var(--lime);
+    font-family: 'Courier Prime', monospace;
+    font-size: .7rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: .6rem 1rem;
+  }
+  .contract-body { padding: 1.5rem; }
+  .contract-addr {
+    background: #f0f0f0;
+    border: 2px solid #ccc;
+    padding: .8rem 1rem;
+    font-family: 'Courier Prime', monospace;
+    font-size: .78rem;
+    word-break: break-all;
+    color: var(--green);
+    margin: .8rem 0;
+    letter-spacing: .5px;
+    border-left: 4px solid var(--green);
+  }
+  .copy-btn {
+    width: 100%;
+    background: var(--green); color: var(--yellow);
+    border: 2px solid var(--ink);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem; letter-spacing: 3px;
+    padding: .6rem; cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+    margin-bottom: .8rem;
+  }
+  .copy-btn:hover { transform: translateY(-2px); box-shadow: 4px 4px 0 var(--ink); }
+  .copy-btn.copied { background: var(--lime); color: var(--ink); }
+
+  .arbiscan-btn {
+    display: block; width: 100%; text-align: center;
+    background: transparent; color: var(--ink);
+    border: 2px solid var(--ink);
+    font-family: 'Courier Prime', monospace;
+    font-size: .75rem; letter-spacing: 2px;
+    padding: .55rem; cursor: pointer;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: background .15s, color .15s;
+  }
+  .arbiscan-btn:hover { background: var(--ink); color: var(--paper); }
+
+  .add-wallet-btn {
+    display: block; width: 100%; text-align: center;
+    background: var(--yellow); color: var(--ink);
+    border: 2px solid var(--ink);
+    font-family: 'Courier Prime', monospace;
+    font-size: .75rem; letter-spacing: 2px;
+    padding: .55rem; cursor: pointer;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: background .15s;
+    margin-bottom: .8rem;
+  }
+  .add-wallet-btn:hover { background: #e8c300; }
+
+  .contract-note {
+    margin-top: 1rem;
+    font-size: .7rem; color: #888;
+    border-top: 1px dashed #ccc;
+    padding-top: .8rem;
+    line-height: 1.6;
+  }
+
+  .swap-wrap {
+    border: 3px solid var(--ink);
+    background: white;
+    box-shadow: 6px 6px 0 var(--green);
+    overflow: hidden;
+  }
+  .swap-header {
+    background: var(--green);
+    color: var(--yellow);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem; letter-spacing: 4px;
+    padding: .6rem 1.2rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .swap-header span { font-size: .7rem; font-family: 'Courier Prime', monospace; color: var(--lime); letter-spacing: 2px; }
+  .swap-iframe-wrap {
+    position: relative;
+    background: #f8f8f8;
+    min-height: 360px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .swap-iframe-wrap iframe {
+    width: 100%; height: 420px;
+    border: none; display: block;
+  }
+  .swap-fallback {
+    text-align: center; padding: 2rem;
+  }
+  .swap-fallback p { font-size: .8rem; color: #888; margin-bottom: 1rem; }
+  .swap-direct-btn {
+    display: inline-block;
+    background: var(--green); color: var(--yellow);
+    border: 3px solid var(--ink);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem; letter-spacing: 3px;
+    padding: .7rem 2rem;
+    text-decoration: none;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .swap-direct-btn:hover { transform: translateY(-2px); box-shadow: 4px 4px 0 var(--ink); }
+
   /* ── RESPONSIVE ── */
   @media (max-width: 700px) {
     #about .inner { grid-template-columns: 1fr; gap: 2rem; }
     .nav-links { display: none; }
     .info-strip { grid-template-columns: 1fr; }
     .info-strip div { border-right: none; border-bottom: 2px solid var(--ink); }
+    .buy-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -530,8 +659,8 @@
   <ul class="nav-links">
     <li><a href="#about">About</a></li>
     <li><a href="#tokenomics">Tokenomics</a></li>
+    <li><a href="#buy">Buy</a></li>
     <li><a href="#staking">Stake</a></li>
-    <li><a href="#howtobuy">Buy</a></li>
   </ul>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.2rem">
     <button id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
@@ -606,6 +735,10 @@
     <div class="reveal">
       <div class="form-card">
         <div class="form-row">
+          <span class="form-key">Contract</span>
+          <span class="form-val" style="font-size:.7rem">0x3c43…3ae6</span>
+        </div>
+        <div class="form-row">
           <span class="form-key">Token Name</span>
           <span class="form-val">CPA</span>
         </div>
@@ -672,6 +805,86 @@
         <div class="toka-name">Vibes Allocated</div>
         <div class="toka-desc">Tax season is brutal. CPA is fun. That's the whole pitch. No whitepaper needed.</div>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- BUY -->
+<section id="buy">
+  <div class="inner">
+    <div class="reveal">
+      <div class="section-label">// Get Your Refund in CPA</div>
+      <h2 class="section-title">BUY $CPA</h2>
+      <p class="section-sub">Swap directly on-site or add the token to your wallet. No broker, no middleman, no 1099 required.</p>
+    </div>
+
+    <div class="buy-grid">
+
+      <!-- LEFT: contract info + actions -->
+      <div class="reveal">
+        <div class="contract-box">
+          <div class="contract-box-header">📋 Contract Address — Arbitrum One</div>
+          <div class="contract-body">
+            <div style="font-size:.7rem;color:#888;letter-spacing:1px;margin-bottom:.3rem">Verify before you buy. Always.</div>
+            <div class="contract-addr" id="contractAddrDisplay">0x3c439bBcbFD196249cC1597b20970e8E08673ae6</div>
+            <button class="copy-btn" id="copyBtn" onclick="copyAddress()">📋 Copy Contract Address</button>
+            <button class="add-wallet-btn" onclick="addToWallet()">🦊 Add $CPA to MetaMask</button>
+            <a class="arbiscan-btn"
+               href="https://arbiscan.io/token/0x3c439bBcbFD196249cC1597b20970e8E08673ae6"
+               target="_blank" rel="noopener">
+              🔍 View on Arbiscan ↗
+            </a>
+            <div class="contract-note">
+              ⚠ Always verify the contract address on Arbiscan before purchasing.
+              CPA has a fixed supply of <strong>1,000,000</strong> tokens with no mint function.
+              Zero transfer tax. No admin keys.
+            </div>
+          </div>
+        </div>
+
+        <!-- Token stats mini card -->
+        <div style="border:2px solid var(--ink);background:white;margin-top:1.5rem;box-shadow:4px 4px 0 var(--green);">
+          <div style="background:var(--ink);color:var(--lime);font-size:.65rem;letter-spacing:3px;padding:.5rem 1rem;text-transform:uppercase;">Token Info</div>
+          <div style="padding:1rem;">
+            <div class="form-row"><span class="form-key">Network</span><span class="form-val">Arbitrum One (42161)</span></div>
+            <div class="form-row"><span class="form-key">Symbol</span><span class="form-val">$CPA</span></div>
+            <div class="form-row"><span class="form-key">Decimals</span><span class="form-val">18</span></div>
+            <div class="form-row"><span class="form-key">Max Supply</span><span class="form-val">1,000,000</span></div>
+            <div class="form-row" style="border:none"><span class="form-key">Slippage</span><span class="form-val" style="color:#e67e22">Set 1–2%</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: embedded Uniswap swap -->
+      <div class="reveal">
+        <div class="swap-wrap">
+          <div class="swap-header">
+            <span>⚡ SWAP ETH → $CPA</span>
+            <span>POWERED BY UNISWAP</span>
+          </div>
+          <div class="swap-iframe-wrap">
+            <iframe
+              id="uniswapFrame"
+              src="https://app.uniswap.org/#/swap?outputCurrency=0x3c439bBcbFD196249cC1597b20970e8E08673ae6&chain=arbitrum&theme=light"
+              allow="clipboard-write"
+              title="Swap ETH for CPA on Uniswap"
+            ></iframe>
+          </div>
+          <div style="background:#fffbe6;border-top:2px solid var(--ink);padding:.7rem 1.2rem;font-size:.7rem;color:#7a6000;letter-spacing:.5px;line-height:1.6;">
+            🔒 Swap is powered by Uniswap Protocol on Arbitrum One. You are swapping directly from your wallet — we never hold your funds. Make sure liquidity is available.
+          </div>
+        </div>
+
+        <!-- Direct link fallback -->
+        <div style="text-align:center;margin-top:1rem;">
+          <a class="swap-direct-btn"
+             href="https://app.uniswap.org/#/swap?outputCurrency=0x3c439bBcbFD196249cC1597b20970e8E08673ae6&chain=arbitrum"
+             target="_blank" rel="noopener">
+            🦄 Open Full Uniswap ↗
+          </a>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
@@ -869,7 +1082,7 @@
 
 <script>
 // ── CONFIG ──────────────────────────────────────────────────────────────────
-const CPA_ADDRESS    = "0xYOUR_CPA_CONTRACT_ADDRESS"; // ← paste your deployed address
+const CPA_ADDRESS    = "0x3c439bBcbFD196249cC1597b20970e8E08673ae6";
 const STAKING_ADDRESS = null; // ← set when staking contract is deployed
 const ARBITRUM_CHAIN_ID = "0xa4b1"; // 42161
 
@@ -878,6 +1091,40 @@ const CPA_ABI = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor
 // ── STATE ────────────────────────────────────────────────────────────────────
 let provider, signer, userAddress, cpaContract;
 let walletBalance = 0n;
+
+// ── COPY ADDRESS ─────────────────────────────────────────────────────────────
+function copyAddress() {
+  const addr = "0x3c439bBcbFD196249cC1597b20970e8E08673ae6";
+  navigator.clipboard.writeText(addr).then(() => {
+    const btn = document.getElementById("copyBtn");
+    btn.textContent = "✅ Copied!";
+    btn.classList.add("copied");
+    setTimeout(() => {
+      btn.textContent = "📋 Copy Contract Address";
+      btn.classList.remove("copied");
+    }, 2000);
+  });
+}
+
+// ── ADD TO WALLET ─────────────────────────────────────────────────────────────
+async function addToWallet() {
+  if (!window.ethereum) { alert("Please install MetaMask first."); return; }
+  try {
+    await window.ethereum.request({
+      method: "wallet_watchAsset",
+      params: {
+        type: "ERC20",
+        options: {
+          address:  "0x3c439bBcbFD196249cC1597b20970e8E08673ae6",
+          symbol:   "CPA",
+          decimals: 18,
+        }
+      }
+    });
+  } catch(e) {
+    console.error(e);
+  }
+}
 
 // ── WALLET ───────────────────────────────────────────────────────────────────
 async function connectWallet() {
