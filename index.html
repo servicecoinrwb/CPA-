@@ -807,7 +807,7 @@
       alt="CPA Token logo"
       style="border-radius:50%;border:2px solid var(--yellow);flex-shrink:0;"
     />
-    <div class="nav-logo"></div>
+    <div class="nav-logo">$CPA</div>
   </a>
   <ul class="nav-links">
     <li><a href="#about">About</a></li>
@@ -1015,33 +1015,55 @@
         </div>
       </div>
 
-      <!-- RIGHT: embedded Uniswap swap -->
+      <!-- RIGHT: swap options -->
       <div class="reveal">
         <div class="swap-wrap">
           <div class="swap-header">
             <span>⚡ SWAP ETH → $CPA</span>
             <span>POWERED BY UNISWAP</span>
           </div>
-          <div class="swap-iframe-wrap">
-            <iframe
-              id="uniswapFrame"
-              src="https://app.uniswap.org/#/swap?outputCurrency=0x3c439bBcbFD196249cC1597b20970e8E08673ae6&chain=arbitrum&theme=light"
-              allow="clipboard-write"
-              title="Swap ETH for CPA on Uniswap"
-            ></iframe>
-          </div>
-          <div style="background:#fffbe6;border-top:2px solid var(--ink);padding:.7rem 1.2rem;font-size:.7rem;color:#7a6000;letter-spacing:.5px;line-height:1.6;">
-            🔒 Swap is powered by Uniswap Protocol on Arbitrum One. You are swapping directly from your wallet — we never hold your funds. Make sure liquidity is available.
-          </div>
-        </div>
 
-        <!-- Direct link fallback -->
-        <div style="text-align:center;margin-top:1rem;">
-          <a class="swap-direct-btn"
-             href="https://app.uniswap.org/#/swap?outputCurrency=0x3c439bBcbFD196249cC1597b20970e8E08673ae6&chain=arbitrum"
-             target="_blank" rel="noopener">
-            🦄 Open Full Uniswap ↗
-          </a>
+          <div style="padding:2rem;background:white;">
+
+            <!-- Primary swap button -->
+            <a href="https://app.uniswap.org/swap?outputCurrency=0x3c439bBcbFD196249cC1597b20970e8E08673ae6&chain=arbitrum"
+               target="_blank" rel="noopener"
+               style="display:block;text-align:center;background:var(--green);color:var(--yellow);font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:4px;padding:1.2rem;text-decoration:none;border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);margin-bottom:1.2rem;transition:transform .15s;"
+               onmouseover="this.style.transform='translateY(-2px)'"
+               onmouseout="this.style.transform='none'">
+              🦄 BUY $CPA ON UNISWAP
+            </a>
+
+            <!-- Defined.fi chart link -->
+            <a href="https://www.defined.fi/arb/0xb59cc800c45129e315664ee3c70b3dad62b08550?quoteToken=token0"
+               target="_blank" rel="noopener"
+               style="display:block;text-align:center;background:var(--paper);color:var(--green);font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:3px;padding:.9rem;text-decoration:none;border:3px solid var(--green);margin-bottom:1.2rem;">
+              📈 VIEW LIVE CHART ON DEFINED.FI
+            </a>
+
+            <!-- Arbiscan link -->
+            <a href="https://arbiscan.io/token/0x3c439bBcbFD196249cC1597b20970e8E08673ae6"
+               target="_blank" rel="noopener"
+               style="display:block;text-align:center;background:transparent;color:#888;font-family:'Courier Prime',monospace;font-size:.75rem;letter-spacing:2px;padding:.7rem;text-decoration:none;border:2px solid #ddd;text-transform:uppercase;">
+              🔍 Verify Contract on Arbiscan ↗
+            </a>
+
+            <!-- How to swap steps -->
+            <div style="margin-top:1.5rem;border-top:2px dashed #ddd;padding-top:1.2rem;">
+              <div style="font-size:.65rem;letter-spacing:3px;text-transform:uppercase;color:#999;margin-bottom:.8rem;">How to swap</div>
+              <div style="font-size:.78rem;color:#555;line-height:2;">
+                1. Click "Buy $CPA on Uniswap" above<br/>
+                2. Connect your wallet on Arbitrum One<br/>
+                3. Enter ETH amount → set slippage 1–2%<br/>
+                4. Confirm swap in MetaMask
+              </div>
+            </div>
+
+          </div>
+
+          <div style="background:#fffbe6;border-top:2px solid var(--ink);padding:.7rem 1.2rem;font-size:.7rem;color:#7a6000;letter-spacing:.5px;line-height:1.6;">
+            🔒 You swap directly from your wallet via Uniswap Protocol. We never hold your funds.
+          </div>
         </div>
       </div>
 
@@ -1366,7 +1388,7 @@
 <!-- FOOTER -->
 <footer>
   <img src="https://raw.githubusercontent.com/servicecoinrwb/CPA-/refs/heads/main/cpa-logo-32.svg" width="48" height="48" alt="CPA" style="border-radius:50%;border:2px solid var(--lime);margin-bottom:.5rem;" />
-  <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--lime);letter-spacing:6px;margin-bottom:.5rem"></div>
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--lime);letter-spacing:6px;margin-bottom:.5rem">$CPA</div>
   <strong>CPA Token</strong> — Arbitrum One &nbsp;|&nbsp; 1,000,000 Fixed Supply<br />
   <strong>Form 1099-NFT</strong> — 1,000 Supply &nbsp;|&nbsp; 0.001 ETH Mint<br />
   Staking Live — 200,000 CPA Rewards Over 180 Days<br />
